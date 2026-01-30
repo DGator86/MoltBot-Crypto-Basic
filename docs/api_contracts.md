@@ -18,3 +18,5 @@ research_lab (localhost:8002)
 
 Security:
 - Bind services to localhost; keys only in trading_core; Coinbase data-only.
+- POST /orders/preview {symbol, side, type, size, price?, mid_price?} -> {ok, slippage_bps, limit_bps}
+- POST /risk/telemetry/pnl {pnl_pct} -> enforces daily loss kill switch

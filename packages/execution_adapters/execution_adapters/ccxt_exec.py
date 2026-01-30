@@ -9,3 +9,13 @@ class CCXTExecution:
 
     def create_order(self, req: Dict[str, Any]) -> Dict[str, Any]:
         return self.client.create_order(req["symbol"], req["type"], req["side"], req["size"], req.get("price"))
+
+
+    def fetch_balance(self):
+        return self.client.fetch_balance()
+
+    def fetch_positions(self):
+        try:
+            return self.client.fetch_positions()
+        except Exception:
+            return []

@@ -25,3 +25,16 @@ class RiskKernel:
         max_notional = float(self._cfg.get("max_position_notional_usd", 0))
         if max_notional and notional_usd > max_notional:
             raise ValueError(f"order exceeds max notional {max_notional} USD")
+
+    def set_daily_pnl_pct(self, pnl_pct: float) -> None:
+        self._daily_pnl_pct = float(pnl_pct)
+
+    def check_daily_loss(self) -> None:
+        max_loss = float(self._cfg.get("max_daily_loss_pct", 0))
+        pnl = float(getattr(self, '_daily_pnl_pct', 0.0))
+        if max_loss and pnl <= -max_loss:
+            self.pause()
+            raise ValueError(f'daily loss {pnl}% exceeds max {max_loss}% -> paused')
+
+    def slippage_limit_bps(self) -> float:
+        return float(self._cfg.get('slippage_bps_limit', 0.0))
