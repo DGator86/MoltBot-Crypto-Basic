@@ -1,0 +1,36 @@
+# FastAPI and web framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0.post1
+pydantic==2.5.2
+pydantic-settings==2.1.0
+
+# Async support
+aiohttp==3.9.1
+websockets==12.0
+
+# Exchange integrations
+ccxt==4.1.75
+
+# Data processing
+pandas==2.1.4
+numpy==1.26.2
+pyarrow==14.0.2
+
+# Database
+sqlalchemy==2.0.23
+aiosqlite==0.19.0
+
+# External APIs
+requests==2.31.0
+
+# Backtesting
+backtrader==1.9.78.123
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+
+# Utilities
+python-dateutil==2.8.2
+pytz==2023.3.post1
