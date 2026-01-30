@@ -27,8 +27,14 @@ def risk():
 
 @app.post("/orders")
 def orders(req: OrderReq):
-    # TODO: call execution router
-    return {"status": "accepted", "echo": req.model_dump()}
+    
+from .execution.router import ExecutionRouter
+router = ExecutionRouter()
+try:
+    ack = router.place_order(req.model_dump())
+    return {"status": "filled_or_open", "ack": ack}
+except Exception as e:
+    return {"status": "error", "error": str(e), "echo": req.model_dump()}
 
 # Poor-man aliasing to avoid deep install in dev containers
 import sys
