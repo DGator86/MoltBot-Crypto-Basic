@@ -106,7 +106,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    if: github.event_name == 'pull_request'
+    # Only run on pull requests and public repos (or private repos with Advanced Security)
+    if: github.event_name == 'pull_request' && github.event.repository.visibility == 'public'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/dependency-review-action@v3
