@@ -1,0 +1,7 @@
+api.coingecko.com
+api.llama.fi
+cryptopanic.com
+api.binance.com
+stream.binance.com
+api.coinbase.com
+advanced-trade-ws.coinbase.com

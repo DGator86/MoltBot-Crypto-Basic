@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv/
+venv/
+.env.*
+*.sqlite
+*.db
+
+# Node
+node_modules/
+dist/
+*.log
+
+# Data
+/data/
+*.parquet
+
+# OS
+.DS_Store
+*.swp
+
+# Pyright/pytest caches
+.pytest_cache/
+.mypy_cache/
+.pyright/
+
+# Docker
+*.pid
