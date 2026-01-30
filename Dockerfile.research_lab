@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy research lab
+COPY research_lab/ /app/research_lab/
+
+# Create directories
+RUN mkdir -p /app/data /app/strategies
+
+CMD ["python", "/app/research_lab/main.py"]

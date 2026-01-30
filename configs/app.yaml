@@ -1,0 +1,9 @@
+app:
+  name: moltbot-crypto-learning-trader
+  env: development
+  http:
+    trading_core_port: 8001
+    research_lab_port: 8002
+security:
+  run_as_user: "app"
+  block_unsafe_code: true

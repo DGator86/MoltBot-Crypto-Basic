@@ -1,0 +1,12 @@
+coingecko:
+  enabled: true
+  base_url: https://api.coingecko.com/api/v3
+
+defillama:
+  enabled: true
+  base_url: https://api.llama.fi
+
+cryptopanic:
+  enabled: true
+  base_url: https://cryptopanic.com/api/v1
+  api_key_env: CRYPTOPANIC_API_KEY

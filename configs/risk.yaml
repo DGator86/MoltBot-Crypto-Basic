@@ -1,0 +1,11 @@
+risk:
+  max_daily_loss_pct: 2.0
+  max_position_notional_usd: 5000
+  max_open_positions: 3
+  kill_switch_enabled: true
+  slippage_bps_limit: 25
+  per_symbol:
+    BTC:
+      max_size: 0.02
+    ETH:
+      max_size: 0.3

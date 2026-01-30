@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  trading_core:
+    build:
+      context: ..
+      dockerfile: docker/trading_core.Dockerfile
+    ports:
+      - "8001:8001"
+    volumes:
+      - ../configs:/app/configs:ro
+  research_lab:
+    build:
+      context: ..
+      dockerfile: docker/research_lab.Dockerfile
+    ports:
+      - "8002:8002"
+    volumes:
+      - ../configs:/app/configs:ro
+      - ../data:/app/data
+  moltbot_bridge:
+    build:
+      context: ..
+      dockerfile: docker/moltbot_bridge.Dockerfile
+    depends_on:
+      - trading_core
+      - research_lab
