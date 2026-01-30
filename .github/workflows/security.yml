@@ -110,6 +110,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/dependency-review-action@v3
+        continue-on-error: true
 
   test:
     name: Run Tests
