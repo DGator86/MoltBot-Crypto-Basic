@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  trading_core:
+    build:
+      context: .
+      dockerfile: Dockerfile.trading_core
+    ports:
+      - "8000:8000"
+    environment:
+      - BINANCE_API_KEY=${BINANCE_API_KEY}
+      - BINANCE_SECRET=${BINANCE_SECRET}
+      - COINBASE_API_KEY=${COINBASE_API_KEY}
+      - COINBASE_SECRET=${COINBASE_SECRET}
+      - DATABASE_URL=sqlite:///data/trading.db
+    volumes:
+      - ./data:/app/data
+    networks:
+      - moltbot_network
+    restart: unless-stopped
+
+  market_data:
+    build:
+      context: .
+      dockerfile: Dockerfile.market_data
+    environment:
+      - BINANCE_WS_URL=wss://stream.binance.com:9443/ws
+      - DATABASE_URL=sqlite:///data/market_data.db
+      - PARQUET_DIR=/app/data/parquet
+    volumes:
+      - ./data:/app/data
+    networks:
+      - moltbot_network
+    restart: unless-stopped
+
+  research_lab:
+    build:
+      context: .
+      dockerfile: Dockerfile.research_lab
+    environment:
+      - DATABASE_URL=sqlite:///data/research.db
+      - COINGECKO_API_KEY=${COINGECKO_API_KEY}
+    volumes:
+      - ./data:/app/data
+      - ./strategies:/app/strategies
+    networks:
+      - moltbot_network
+    restart: unless-stopped
+
+  moltbot_bridge:
+    build:
+      context: .
+      dockerfile: Dockerfile.bridge
+    environment:
+      - TRADING_CORE_URL=http://trading_core:8000
+    networks:
+      - moltbot_network
+    restart: unless-stopped
+
+networks:
+  moltbot_network:
+    driver: bridge
+
+volumes:
+  data:
