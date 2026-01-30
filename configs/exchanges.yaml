@@ -1,0 +1,28 @@
+exchanges:
+  binance:
+    enabled: true
+    type: both   # spot|perps|both
+    base_url: https://api.binance.com
+    ws_url: wss://stream.binance.com:9443/stream
+    api_key_env: BINANCE_API_KEY
+    api_secret_env: BINANCE_API_SECRET
+    symbols:
+      - BTC/USDT
+      - ETH/USDT
+  coinbase:
+    enabled: true
+    type: spot
+    base_url: https://api.coinbase.com
+    ws_url: wss://advanced-trade-ws.coinbase.com
+    api_key_env: COINBASE_API_KEY
+    api_secret_env: COINBASE_API_SECRET
+    passphrase_env: COINBASE_PASSPHRASE
+    symbols:
+      - BTC-USDC
+      - ETH-USDC
+routing:
+  prefer:
+    BTC: binance
+    ETH: coinbase
+  fallbacks:
+    - ccxt
