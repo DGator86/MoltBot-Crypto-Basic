@@ -9,14 +9,15 @@ from enum import Enum
 import ccxt
 from decimal import Decimal
 import asyncio
+import os
 from datetime import datetime, timezone
 
 app = FastAPI(title="Moltbot Trading Core", version="1.0.0")
 
-# CORS middleware
+# CORS middleware - restrict origins in production
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -112,12 +113,22 @@ exchange_manager = ExchangeManager()
 def check_risk(order: OrderRequest) -> RiskCheck:
     """Check if order passes risk limits"""
     if state.kill_switch_active:
-        return RiskCheck(passed=False, reason="Kill switch is active")
+        return RiskCheck(
+            passed=False, 
+            reason="Kill switch is active. Use POST /kill-switch/deactivate to deactivate."
+        )
     
     if state.is_paused:
-        return RiskCheck(passed=False, reason="Trading is paused")
+        return RiskCheck(
+            passed=False, 
+            reason="Trading is paused. Use POST /resume to resume trading."
+        )
     
-    # Check position size
+    # For market orders, skip price-based validation
+    if order.type == OrderType.MARKET:
+        return RiskCheck(passed=True)
+    
+    # Check position size for limit orders
     order_value = Decimal(str(order.amount)) * Decimal(str(order.price or 0))
     if order_value > state.risk_limits['max_position_size']:
         return RiskCheck(
@@ -184,7 +195,15 @@ async def place_order(order: OrderRequest) -> OrderResponse:
         raise HTTPException(status_code=400, detail=risk_check.reason)
     
     try:
-        exchange = exchange_manager.get_exchange(order.exchange)
+        # Get API credentials from environment
+        if order.exchange == Exchange.BINANCE:
+            api_key = os.getenv("BINANCE_API_KEY")
+            secret = os.getenv("BINANCE_SECRET")
+        else:  # Coinbase
+            api_key = os.getenv("COINBASE_API_KEY")
+            secret = os.getenv("COINBASE_SECRET")
+        
+        exchange = exchange_manager.get_exchange(order.exchange, api_key, secret)
         
         # Place order via CCXT
         if order.type == OrderType.MARKET:
@@ -249,14 +268,19 @@ async def resume_trading():
 @app.post("/flatten")
 async def flatten_all_positions():
     """Close all positions (flatten)"""
-    if state.kill_switch_active:
-        raise HTTPException(status_code=400, detail="Kill switch is active")
-    
     results = []
     for key, position in list(state.positions.items()):
         try:
             if position['amount'] != 0:
-                exchange = exchange_manager.get_exchange(position['exchange'])
+                # Get API credentials
+                if position['exchange'] == 'binance':
+                    api_key = os.getenv("BINANCE_API_KEY")
+                    secret = os.getenv("BINANCE_SECRET")
+                else:
+                    api_key = os.getenv("COINBASE_API_KEY")
+                    secret = os.getenv("COINBASE_SECRET")
+                
+                exchange = exchange_manager.get_exchange(position['exchange'], api_key, secret)
                 side = 'sell' if position['amount'] > 0 else 'buy'
                 amount = abs(position['amount'])
                 
@@ -265,14 +289,15 @@ async def flatten_all_positions():
                     side,
                     amount
                 )
+                
+                # Only remove position after successful order
+                del state.positions[key]
+                
                 results.append({
                     'symbol': position['symbol'],
                     'status': 'closed',
                     'order_id': result['id']
                 })
-                
-                # Remove position
-                del state.positions[key]
         except Exception as e:
             results.append({
                 'symbol': position['symbol'],
@@ -292,12 +317,47 @@ async def activate_kill_switch():
     state.kill_switch_active = True
     state.is_paused = True
     
-    # Flatten all positions
-    flatten_result = await flatten_all_positions()
+    # Flatten all positions (bypass kill switch check)
+    results = []
+    for key, position in list(state.positions.items()):
+        try:
+            if position['amount'] != 0:
+                # Get API credentials
+                if position['exchange'] == 'binance':
+                    api_key = os.getenv("BINANCE_API_KEY")
+                    secret = os.getenv("BINANCE_SECRET")
+                else:
+                    api_key = os.getenv("COINBASE_API_KEY")
+                    secret = os.getenv("COINBASE_SECRET")
+                
+                exchange = exchange_manager.get_exchange(position['exchange'], api_key, secret)
+                side = 'sell' if position['amount'] > 0 else 'buy'
+                amount = abs(position['amount'])
+                
+                result = exchange.create_market_order(
+                    position['symbol'],
+                    side,
+                    amount
+                )
+                
+                # Only remove position after successful order
+                del state.positions[key]
+                
+                results.append({
+                    'symbol': position['symbol'],
+                    'status': 'closed',
+                    'order_id': result['id']
+                })
+        except Exception as e:
+            results.append({
+                'symbol': position['symbol'],
+                'status': 'error',
+                'error': str(e)
+            })
     
     return {
         "status": "kill_switch_activated",
-        "flatten_result": flatten_result,
+        "flatten_result": {"status": "flattened", "results": results},
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
 

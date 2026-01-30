@@ -28,10 +28,12 @@ jobs:
           pip install -r requirements.txt
       
       - name: Run Safety (dependency vulnerability scan)
-        run: safety check --json || true
+        run: safety check --json
+        continue-on-error: true
       
       - name: Run Bandit (code security scan)
-        run: bandit -r trading_core/ market_data/ research_lab/ -f json -o bandit-report.json || true
+        run: bandit -r trading_core/ market_data/ research_lab/ -f json -o bandit-report.json
+        continue-on-error: true
       
       - name: Upload Bandit report
         uses: actions/upload-artifact@v3
@@ -55,7 +57,8 @@ jobs:
         run: npm install
       
       - name: Run npm audit
-        run: npm audit --json || true
+        run: npm audit --json
+        continue-on-error: true
       
       - name: Build TypeScript
         run: npm run build
@@ -114,7 +117,7 @@ jobs:
           pip install pytest pytest-cov
       
       - name: Run Python tests
-        run: pytest --cov=trading_core --cov=market_data --cov=research_lab || true
+        run: pytest --cov=trading_core --cov=market_data --cov=research_lab
       
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -125,4 +128,5 @@ jobs:
         run: npm install
       
       - name: Run TypeScript tests
-        run: npm test || true
+        run: npm test
+        continue-on-error: true

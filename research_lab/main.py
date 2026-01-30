@@ -6,7 +6,7 @@ import requests
 import pandas as pd
 import sqlite3
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 import importlib.util
 import sys
@@ -100,7 +100,7 @@ class ExternalDataFetcher:
                     VALUES (?, ?, ?, ?, ?)
                 """, (
                     coin_id,
-                    int(datetime.utcnow().timestamp()),
+                    int(datetime.now(timezone.utc).timestamp()),
                     data[coin_id].get('usd', 0),
                     data[coin_id].get('usd_market_cap', 0),
                     data[coin_id].get('usd_24h_vol', 0)

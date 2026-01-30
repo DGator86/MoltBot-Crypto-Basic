@@ -30,8 +30,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-dist/
 *.tsbuildinfo
+package-lock.json
 
 # IDEs
 .vscode/
@@ -67,3 +67,4 @@ htmlcov/
 
 # Docker
 *.log
+
