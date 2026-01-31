@@ -1,0 +1,21 @@
+scales:
+  - name: micro
+    trade_count: 500
+    sigma_window_trades: 2000
+    sigma_k: 1.0
+  - name: minor
+    trade_count: 2000
+    sigma_window_trades: 5000
+    sigma_k: 1.5
+  - name: major
+    trade_count: 8000
+    sigma_window_trades: 15000
+    sigma_k: 2.0
+  - name: macro
+    trade_count: 30000
+    sigma_window_trades: 60000
+    sigma_k: 3.0
+snapshot_every_trades: 200
+cone:
+  steps: 250
+  n_paths: 2000

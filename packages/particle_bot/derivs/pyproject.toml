@@ -1,0 +1,19 @@
+[project]
+name = "particle-bot"
+version = "0.1.0"
+description = "Timeframe-agnostic price-particle regime bot MVP (prints-first)"
+requires-python = ">=3.10"
+dependencies = [
+  "pydantic>=2.0",
+  "pyyaml>=6.0",
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "websockets>=12.0",
+  "aiohttp>=3.9",
+]
+
+[project.scripts]
+particle-bot = "particle_bot.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

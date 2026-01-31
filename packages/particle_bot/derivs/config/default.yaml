@@ -1,0 +1,39 @@
+scales:
+  - name: micro
+    trade_count: 500
+    sigma_window_trades: 2000
+    sigma_k: 1.0
+  - name: minor
+    trade_count: 2000
+    sigma_window_trades: 5000
+    sigma_k: 1.5
+  - name: major
+    trade_count: 8000
+    sigma_window_trades: 15000
+    sigma_k: 2.0
+  - name: macro
+    trade_count: 30000
+    sigma_window_trades: 60000
+    sigma_k: 3.0
+
+# Snapshot cadence: every N trade prints (not bars)
+snapshot_every_trades: 200
+
+# Top-of-book depth used by the liquidity field (partial depth)
+book_depth: 20
+
+cone:
+  steps: 250
+  n_paths: 2000
+
+binance:
+  # Depth update speed for partial book depth stream
+  depth_ms: "100ms"
+
+  # markPrice stream speed: true => @1s, false => @3s
+  mark_price_1s: true
+
+  # REST polling (seconds). Binance has no standard WS open interest.
+  oi_poll_s: 5
+  basis_poll_s: 60
+  basis_period: "5m"
