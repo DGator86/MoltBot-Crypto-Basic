@@ -155,3 +155,42 @@ def risk_resume():
 def risk_flatten():
     # TODO: implement flatten-all: iterate positions and send opposing orders
     return {"flatten": "requested"}
+
+
+@app.get("/regime/current")
+def regime_current(product: str = "BTC-USD", level: str = "order", lookback: int = 1000):
+    """Return current regime scores by proxying Research Lab scoring.
+    Loads cached Coinbase OHLCV from data/raw.
+    """
+    import os, json
+    from pathlib import Path
+
+    base = Path("data/raw")
+    files = [
+        base / f"cbx_{product.replace('-', '_')}_1m_30d.jsonl",
+        base / f"cbx_{product.replace('-', '_')}_1m.jsonl",
+    ]
+    ohlcv: list[dict] = []
+    for fp in files:
+        if fp.exists():
+            with fp.open("r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        ohlcv.append(json.loads(line))
+                    except Exception:
+                        pass
+            break
+    if not ohlcv:
+        return {"error": f"no cached OHLCV for {product}"}
+
+    ohlcv = ohlcv[-max(10, int(lookback)) :]
+    rl_url = os.environ.get("RESEARCH_LAB_URL", "http://localhost:8002")
+    try:
+        import requests
+        r = requests.post(f"{rl_url}/score/regime", json={"ohlcv": ohlcv, "level": level}, timeout=20)
+        return {"product": product, "level": level, "scores": r.json(), "n": len(ohlcv)}
+    except Exception as e:
+        return {"error": str(e), "product": product, "level": level}
