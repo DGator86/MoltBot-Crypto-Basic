@@ -1,0 +1,3 @@
+[submodule "bots/Yoshi-Bot"]
+	path = bots/Yoshi-Bot
+	url = https://github.com/DGator86/Yoshi-Bot.git
