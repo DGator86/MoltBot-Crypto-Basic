@@ -20,11 +20,10 @@ def test_coingecko_module_loads():
 
 def test_coingecko_api_key_configuration():
     """Test that CoinGecko uses Pro API when API key is set"""
-    # Set API key
-    os.environ['COINGECKO_API_KEY'] = 'CG-krJCp3qpAfGUnTb5qDXezUzz'
+    # Set test API key
+    os.environ['COINGECKO_API_KEY'] = 'test-api-key-123'
     
     # Direct import of the module
-    import sys
     import importlib.util
     
     module_path = os.path.join(os.path.dirname(__file__), '..', 'packages', 'research_lab', 'research_lab', 'data_sources', 'coingecko.py')
@@ -32,8 +31,8 @@ def test_coingecko_api_key_configuration():
     coingecko = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(coingecko)
     
-    # Verify Pro API is used
-    assert coingecko.API_KEY == 'CG-krJCp3qpAfGUnTb5qDXezUzz'
+    # Verify Pro API is used when key is present
+    assert coingecko.API_KEY == 'test-api-key-123'
     assert coingecko.BASE == 'https://pro-api.coingecko.com/api/v3'
 
 
@@ -44,7 +43,6 @@ def test_coingecko_no_api_key_configuration():
         del os.environ['COINGECKO_API_KEY']
     
     # Direct import of the module
-    import sys
     import importlib.util
     
     module_path = os.path.join(os.path.dirname(__file__), '..', 'packages', 'research_lab', 'research_lab', 'data_sources', 'coingecko.py')
