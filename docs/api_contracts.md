@@ -30,3 +30,5 @@ Security:
 - POST /score/regime { ohlcv, level } -> predictions and probabilities
 
 Levels supported: kingdom, phylum, clazz (positioning), order (liquidity topology), family (microstructure). For clazz, you can pass aux: { funding:[], oi:[], basis:[] } aligned to ohlcv.
+
+- POST /ingest/derivs { path, ohlcv? } -> extracts funding/oi/basis arrays and builds volume profile/HVN/LVN if ohlcv provided

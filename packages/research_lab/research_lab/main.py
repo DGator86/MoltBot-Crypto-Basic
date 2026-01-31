@@ -156,3 +156,23 @@ class ScoreReq(BaseModel):
 @app.post("/score/regime")
 def score_regime(req: ScoreReq):
     return score_series(req.ohlcv, req.level)
+
+
+from .ingest.derivatives_adapter import extract_derivatives_series
+from .features.orderbook_profile import volume_profile_from_trades, hvn_lvn
+
+class DerivsReq(BaseModel):
+    path: str
+    ohlcv: list[dict] | None = None
+
+@app.post("/ingest/derivs")
+def ingest_derivs(req: DerivsReq):
+    series = extract_derivatives_series(req.path)
+    out = {"counts": {k: len(v) for k, v in series.items()}, "aux": {k: series[k] for k in ("funding","oi","basis")}}
+    if req.ohlcv:
+        # Optionally create a simple profile from provided series
+        prof = volume_profile_from_trades(req.ohlcv)
+        nodes = hvn_lvn(prof)
+        out["profile"] = prof
+        out["nodes"] = nodes
+    return out
