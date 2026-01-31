@@ -24,3 +24,7 @@ Security:
 - POST /simulate/paper { ohlcv, orders, config? }
 - POST /sweeps/start { ohlcv, fast_range, slow_range, fee_bps?, slippage_bps?, max_workers? }
 - GET /sweeps/status/{sweep_id}
+
+- POST /learn/regime/start { ohlcv, level, windows? } -> async training; returns job_id
+- GET /learn/regime/status/{job_id} -> training status and model path
+- POST /score/regime { ohlcv, level } -> predictions and probabilities

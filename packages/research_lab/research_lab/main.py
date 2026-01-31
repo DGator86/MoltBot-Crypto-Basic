@@ -130,3 +130,28 @@ def sweeps_start(req: SweepReq):
 @app.get("/sweeps/status/{sid}")
 def sweeps_status(sid: str):
     return _SWEEPS.get(sid, {"status": "unknown"})
+
+
+from .learners.training import start_training, job_status, score_series
+
+class LearnReq(BaseModel):
+    ohlcv: list[dict]
+    level: str  # kingdom|phylum (v0)
+    windows: dict | None = None
+
+@app.post("/learn/regime/start")
+def learn_regime_start(req: LearnReq):
+    jid = start_training(req.ohlcv, req.level, req.windows)
+    return {"job_id": jid}
+
+@app.get("/learn/regime/status/{job_id}")
+def learn_regime_status(job_id: str):
+    return job_status(job_id)
+
+class ScoreReq(BaseModel):
+    ohlcv: list[dict]
+    level: str
+
+@app.post("/score/regime")
+def score_regime(req: ScoreReq):
+    return score_series(req.ohlcv, req.level)
