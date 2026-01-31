@@ -28,3 +28,5 @@ Security:
 - POST /learn/regime/start { ohlcv, level, windows? } -> async training; returns job_id
 - GET /learn/regime/status/{job_id} -> training status and model path
 - POST /score/regime { ohlcv, level } -> predictions and probabilities
+
+Levels supported: kingdom, phylum, clazz (positioning), order (liquidity topology), family (microstructure). For clazz, you can pass aux: { funding:[], oi:[], basis:[] } aligned to ohlcv.

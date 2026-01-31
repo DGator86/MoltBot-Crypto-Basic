@@ -13,12 +13,12 @@ os.makedirs(MODELS_DIR, exist_ok=True)
 _JOBS: Dict[str, Dict[str, Any]] = {}
 
 
-def start_training(ohlcv: List[dict], level: str, windows: Dict[str,int] | None = None) -> str:
+def start_training(ohlcv: List[dict], level: str, windows: Dict[str,int] | None = None, aux: Dict[str,Any] | None = None) -> str:
     jid = str(uuid.uuid4())
     _JOBS[jid] = {"status": "running", "model_path": None, "metrics": None}
     def _run():
         try:
-            X, y = build_dataset(ohlcv, level, windows)
+            X, y = build_dataset(ohlcv, level, windows, aux)
             clf = RegimeClassifier()
             clf.fit(X, y)
             path = os.path.join(MODELS_DIR, f"regime_{level}.joblib")

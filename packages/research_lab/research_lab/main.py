@@ -136,12 +136,13 @@ from .learners.training import start_training, job_status, score_series
 
 class LearnReq(BaseModel):
     ohlcv: list[dict]
-    level: str  # kingdom|phylum (v0)
+    level: str  # kingdom|phylum|clazz|order|family
     windows: dict | None = None
+    aux: dict | None = None  # optional: funding, oi, basis arrays aligned to ohlcv
 
 @app.post("/learn/regime/start")
 def learn_regime_start(req: LearnReq):
-    jid = start_training(req.ohlcv, req.level, req.windows)
+    jid = start_training(req.ohlcv, req.level, req.windows, req.aux)
     return {"job_id": jid}
 
 @app.get("/learn/regime/status/{job_id}")
