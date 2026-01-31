@@ -4,6 +4,12 @@ from pydantic import BaseModel
 from typing import List, Dict, Any
 
 app = FastAPI(title="Research Lab")
+# Mount Gnosis (Yoshi-Bot) API routes if available
+try:
+    from .gnosis_api import router as __gnosis_router
+    app.include_router(__gnosis_router)
+except Exception:
+    pass
 
 class IngestReq(BaseModel):
     urls: List[str]
@@ -176,3 +182,32 @@ def ingest_derivs(req: DerivsReq):
         out["profile"] = prof
         out["nodes"] = nodes
     return out
+
+# -----------------------------
+# Gnosis (Yoshi-Bot) integration
+# -----------------------------
+from pydantic import BaseModel as _GnosisBM
+from .gnosis_runner import run_gnosis
+from .gnosis_api import router as gnosis_router
+
+class GnosisRunReq(_GnosisBM):
+    source: dict
+    base_config: dict | None = None
+    hparams: dict | None = None
+
+@app.post("/gnosis/run")
+def gnosis_run(req: GnosisRunReq):
+    run_id, report = run_gnosis(req.source, req.base_config, req.hparams)
+    return {"run_id": run_id, "report": report}
+
+@app.get("/gnosis/report/{run_id}")
+def gnosis_report(run_id: str):
+    from pathlib import Path
+    import json
+    p = Path("data/artifacts/gnosis")/run_id/"report.json"
+    if not p.exists():
+        return {"error": "not_found", "run_id": run_id}
+    return json.loads(p.read_text())
+
+# Mount alternate Gnosis API that can consume OHLCV JSONL directly
+app.include_router(gnosis_router)
