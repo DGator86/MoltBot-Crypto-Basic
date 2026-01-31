@@ -1,6 +1,7 @@
 coingecko:
   enabled: true
-  base_url: https://api.coingecko.com/api/v3
+  base_url: https://pro-api.coingecko.com/api/v3
+  api_key_env: COINGECKO_API_KEY
 
 defillama:
   enabled: true
