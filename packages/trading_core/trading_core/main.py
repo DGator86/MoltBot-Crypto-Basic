@@ -90,6 +90,17 @@ def orders_preview(req: PreviewReq):
     from .execution.slippage import slippage_bps as _slip
     lim = risk_kernel.slippage_limit_bps()
     mid = req.mid_price or 0.0
+    if not mid:
+        try:
+            from execution_adapters.ccxt_exec import CCXTExecution
+            ex = CCXTExecution('binance', os.getenv('BINANCE_API_KEY'), os.getenv('BINANCE_API_SECRET'))
+            tk = ex.fetch_ticker(req.symbol)
+            bid = float(tk.get('bid') or 0)
+            ask = float(tk.get('ask') or 0)
+            if bid and ask:
+                mid = (bid + ask) / 2.0
+        except Exception:
+            pass
     px = req.price or mid
     s_bps = _slip(px, mid) if mid else 0.0
     ok = (s_bps <= lim) if lim else True
